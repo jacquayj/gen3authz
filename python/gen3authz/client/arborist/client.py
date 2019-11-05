@@ -630,6 +630,19 @@ class ArboristClient(AuthzClient):
         self.logger.info("revoked all policies from user `{}`".format(username))
         return True
 
+    def revoke_policy_for_user(self, username, policy_name):
+        url = self._user_url + "/{}/policy/{}".format(urllib.quote(username), urllib.quote(policy_name))
+        response = self.delete(url, expect_json=False)
+        if response.code != 204:
+            self.logger.error(
+                "could not revoke policies from user `{}`: {}`".format(
+                    username, response.error_msg
+                )
+            )
+            return None
+        self.logger.info("revoked policy {} from user `{}`".format(policy_name, username))
+        return True
+
     def create_group(self, name, description="", users=[], policies=[]):
         data = {"name": name, "users": users, "policies": policies}
         if description:
